@@ -3,12 +3,11 @@
 #include "uart.h"
 
 
-static void nvic_enable_irq(uint32_t IRQn)
-{
-    NVIC->ISER[IRQn / 32U] |= (1UL << (IRQn % 32U));
-}
+#define NVIC_ENABLE_IRQ(IRQn) (NVIC->ISER[IRQn / 32U] |= (1UL << (IRQn % 32U)))
 
-void nvic_exti_pc13_button_enable(void) {
+
+void nvic_exti_pc13_button_enable(void)
+{
     // 1. Habilitar el reloj para SYSCFG
     rcc_syscfg_clock_enable(); // SYSCFG es necesario para mapear EXTI a GPIO
 
@@ -24,12 +23,13 @@ void nvic_exti_pc13_button_enable(void) {
     EXTI->RTSR1 &= ~(1U << 13); // Deshabilitar (no necesitamos detectar el flanco de subida)
 
     // 6. Habilitar la interrupción EXTI15_10 en el NVIC
-    nvic_enable_irq(EXTI15_10_IRQn);
+    NVIC_ENABLE_IRQ(EXTI15_10_IRQn);
 }
 
-void nvic_usart2_irq_enable(void) {
+void nvic_usart2_irq_enable(void)
+{
     // Habilitar interrupción de recepción (RXNEIE - Read Data Register Not Empty Interrupt Enable)
     // Esto hará que se genere una interrupción cuando RDR tenga un dato.
     USART2->CR1 |= 0x01 << 5;
-    nvic_enable_irq(USART2_IRQn);
+    NVIC_ENABLE_IRQ(USART2_IRQn);
 }
